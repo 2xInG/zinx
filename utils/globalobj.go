@@ -11,12 +11,11 @@ package utils
 
 import (
 	"encoding/json"
-	"github.com/aceld/zinx/utils/commandline/args"
-	"github.com/aceld/zinx/utils/commandline/uflag"
-	"github.com/aceld/zinx/ziface"
-	"github.com/aceld/zinx/zlog"
 	"io/ioutil"
 	"os"
+
+	"github.com/aceld/zinx/ziface"
+	"github.com/aceld/zinx/zlog"
 )
 
 /*
@@ -53,6 +52,11 @@ type GlobalObj struct {
 	LogDir        string //日志所在文件夹 默认"./log"
 	LogFile       string //日志文件名称   默认""  --如果没有设置日志文件，打印信息将打印至stderr
 	LogDebugClose bool   //是否关闭Debug日志级别调试信息 默认false  -- 默认打开debug信息
+
+	/*
+		timer
+	*/
+	DeadTime int64
 }
 
 /*
@@ -107,15 +111,6 @@ func init() {
 	if err != nil {
 		pwd = "."
 	}
-
-	// 初始化配置模块flag
-	args.InitConfigFlag( pwd + "/conf/zinx.json","配置文件，如果没有设置，则默认为<exeDir>/conf/zinx.json")
-	// 初始化日志模块flag TODO
-	// 解析
-	uflag.Parse()
-	// 解析之后的操作
-	args.FlagHandle()
-
 	//初始化GlobalObject变量，设置一些默认值
 	GlobalObject = &GlobalObj{
 		Name:             "ZinxServerApp",
@@ -124,16 +119,16 @@ func init() {
 		Host:             "0.0.0.0",
 		MaxConn:          12000,
 		MaxPacketSize:    4096,
-		ConfFilePath:     args.Args.ConfigFile ,
+		ConfFilePath:     pwd + "/conf/zinx.json",
 		WorkerPoolSize:   10,
 		MaxWorkerTaskLen: 1024,
 		MaxMsgChanLen:    1024,
 		LogDir:           pwd + "/log",
 		LogFile:          "",
 		LogDebugClose:    false,
+		DeadTime:		5,
 	}
 
 	//NOTE: 从配置文件中加载一些用户配置的参数
 	GlobalObject.Reload()
 }
-

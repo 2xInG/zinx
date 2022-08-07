@@ -7,10 +7,10 @@ import (
 	"io"
 	"net"
 	"sync"
-	"time"
 
 	"github.com/aceld/zinx/utils"
 	"github.com/aceld/zinx/ziface"
+	"time"
 )
 
 //Connection 链接
@@ -26,6 +26,8 @@ type Connection struct {
 	//告知该链接已经退出/停止的channel
 	ctx    context.Context
 	cancel context.CancelFunc
+	//无缓冲管道，用于读、写两个goroutine之间的消息通信
+	msgChan chan []byte
 	//有缓冲管道，用于读、写两个goroutine之间的消息通信
 	msgBuffChan chan []byte
 
@@ -36,19 +38,26 @@ type Connection struct {
 	propertyLock sync.Mutex
 	//当前连接的关闭状态
 	isClosed bool
+	//心跳检测关闭状态
+	deadTimeLine *int64
 }
 
 //NewConnection 创建连接的方法
 func NewConnection(server ziface.IServer, conn *net.TCPConn, connID uint32, msgHandler ziface.IMsgHandle) *Connection {
 	//初始化Conn属性
+	deadTime := utils.GlobalObject.DeadTime
+	times := time.Now().Unix()+deadTime
 	c := &Connection{
 		TCPServer:   server,
 		Conn:        conn,
 		ConnID:      connID,
 		isClosed:    false,
 		MsgHandler:  msgHandler,
+		msgChan:     make(chan []byte),
 		msgBuffChan: make(chan []byte, utils.GlobalObject.MaxMsgChanLen),
 		property:    nil,
+		deadTimeLine: &times ,
+
 	}
 
 	//将新创建的Conn添加到链接管理中
@@ -63,6 +72,13 @@ func (c *Connection) StartWriter() {
 
 	for {
 		select {
+		case data := <-c.msgChan:
+			//有数据要写给客户端
+			if _, err := c.Conn.Write(data); err != nil {
+				fmt.Println("Send Data error:, ", err, " Conn Writer exit")
+				return
+			}
+			//fmt.Printf("Send data succ! data = %+v\n", data)
 		case data, ok := <-c.msgBuffChan:
 			if ok {
 				//有数据要写给客户端
@@ -190,17 +206,15 @@ func (c *Connection) SendMsg(msgID uint32, data []byte) error {
 	}
 
 	//写回客户端
-	_, err = c.Conn.Write(msg)
-	return err
+	c.msgChan <- msg
+
+	return nil
 }
 
 //SendBuffMsg  发生BuffMsg
 func (c *Connection) SendBuffMsg(msgID uint32, data []byte) error {
 	c.RLock()
 	defer c.RUnlock()
-	idleTimeout := time.NewTimer(5 * time.Millisecond)
-	defer idleTimeout.Stop()
-
 	if c.isClosed == true {
 		return errors.New("Connection closed when send buff msg")
 	}
@@ -213,15 +227,8 @@ func (c *Connection) SendBuffMsg(msgID uint32, data []byte) error {
 		return errors.New("Pack error msg ")
 	}
 
-	// 发送超时
-	select {
-	case <-idleTimeout.C:
-		return errors.New("send buff msg timeout")
-	case c.msgBuffChan <- msg:
-		return nil
-	}
 	//写回客户端
-	//c.msgBuffChan <- msg
+	c.msgBuffChan <- msg
 
 	return nil
 }
@@ -261,7 +268,19 @@ func (c *Connection) RemoveProperty(key string) {
 func (c *Connection) Context() context.Context {
 	return c.ctx
 }
-
+/*
+    Author 2xInG
+    Desc 源码更改 新增心跳短线
+    Time 2022年8月5日16:36:37
+*/
+//获取哏屁时间
+func (c *Connection) GetDeadTime() *int64 {
+	return c.deadTimeLine
+}
+//获取哏屁时间
+func (c *Connection) SetDeadTime(time int64) {
+	c.deadTimeLine = &time
+}
 func (c *Connection) finalizer() {
 	//如果用户注册了该链接的关闭回调业务，那么在此刻应该显示调用
 	c.TCPServer.CallOnConnStop(c)

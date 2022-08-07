@@ -33,8 +33,9 @@ Git: https://gitee.com/Aceld/zinx
 
 ### PC端文档
 
-[语雀-《Zinx框架教程-基于Golang的轻量级并发服务器》](https://www.yuque.com/aceld)
+[看云-《Zinx框架教程-基于Golang的轻量级并发服务器》](https://www.kancloud.cn/aceld/zinx)
 
+[简书-《Zinx框架教程-基于Golang的轻量级并发服务器》](https://www.jianshu.com/p/23d07c0a28e5)
 
 ### 移动端文档
 ![gongzhonghao](https://s1.ax1x.com/2020/07/07/UFyUdx.th.jpg)
@@ -426,6 +427,15 @@ func (c *Connection) RemoveProperty(key string)
 [https://www.kancloud.cn/@aceld](https://www.kancloud.cn/@aceld)
 
 ### Zinx技术讨论社区
-|  **微信群**   | **微信公众号**  | **QQ群资源分享**  |
-|  ----  | ----  | ----  |
-| <img src="https://s1.ax1x.com/2020/07/07/UF6rNV.png" width = "150" height = "180" alt="" align=center />  | <img src="https://s1.ax1x.com/2020/07/07/UFyUdx.th.jpg" height = "150"  alt="" align=center /> | <img src="https://s1.ax1x.com/2020/07/07/UF6Y9S.th.png" width = "150" height = "150" alt="" align=center /> |
+
+### **微信公众号**
+![gongzhonghao](https://s1.ax1x.com/2020/07/07/UFyUdx.th.jpg)
+
+
+### **QQ资源分享**
+
+![qqqun](https://s1.ax1x.com/2020/07/07/UF6Y9S.th.png)
+
+### **微信群**
+<img src="https://s1.ax1x.com/2020/07/07/UF6rNV.png" width = "200" height = "230" alt="weixin" />
+欢迎大家加入，一起学习分享

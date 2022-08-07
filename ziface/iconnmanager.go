@@ -22,4 +22,6 @@ type IConnManager interface {
 	Get(connID uint32) (IConnection, error) //利用ConnID获取链接
 	Len() int                               //获取当前连接
 	ClearConn()                             //删除并停止所有链接
+	GetAllConn()(map[uint32]IConnection)    //获取所有链接
+	ClearOneConn(connID uint32)             //利用ConnID获取一个链接 并且删除
 }

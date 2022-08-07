@@ -34,4 +34,6 @@ type IConnection interface {
 	SetProperty(key string, value interface{}) 		//设置链接属性
 	GetProperty(key string) (interface{}, error)	//获取链接属性
 	RemoveProperty(key string) 						//移除链接属性
+	GetDeadTime() *int64                            //获取哏屁时间
+	SetDeadTime(int64)                              //设置哏屁时间
 }

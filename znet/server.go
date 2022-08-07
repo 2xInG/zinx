@@ -17,9 +17,9 @@ var zinxLogo = `
  ▄██▄▄▄▄▄  ▄▄▄██▄▄▄  ██    ██   ▄█▀▀█▄  
  ▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀  ▀▀    ▀▀  ▀▀▀  ▀▀▀ 
                                         `
-var topLine = `┌──────────────────────────────────────────────────────┐`
+var topLine = `┌───────────────────────────────────────────────────┐`
 var borderLine = `│`
-var bottomLine = `└──────────────────────────────────────────────────────┘`
+var bottomLine = `└───────────────────────────────────────────────────┘`
 
 //Server 接口实现，定义一个Server服务类
 type Server struct {
@@ -97,6 +97,7 @@ func (s *Server) Start() {
 
 		//3 启动server网络连接业务
 		for {
+			listener.Addr()
 			//3.1 阻塞等待客户端建立连接请求
 			conn, err := listener.AcceptTCP()
 			if err != nil {
@@ -114,7 +115,7 @@ func (s *Server) Start() {
 			//3.3 处理该新连接请求的 业务 方法， 此时应该有 handler 和 conn是绑定的
 			dealConn := NewConnection(s, conn, cID, s.msgHandler)
 			cID++
-
+			fmt.Println("Get conn DeadTime addr = ", dealConn.GetDeadTime())
 			//3.4 启动当前链接的处理业务
 			go dealConn.Start()
 		}
@@ -182,8 +183,8 @@ func (s *Server) Packet() ziface.Packet {
 func printLogo() {
 	fmt.Println(zinxLogo)
 	fmt.Println(topLine)
-	fmt.Println(fmt.Sprintf("%s [Github] https://github.com/aceld                    %s", borderLine, borderLine))
-	fmt.Println(fmt.Sprintf("%s [tutorial] https://www.yuque.com/aceld/npyr8s/bgftov %s", borderLine, borderLine))
+	fmt.Println(fmt.Sprintf("%s [Github] https://github.com/aceld                 %s", borderLine, borderLine))
+	fmt.Println(fmt.Sprintf("%s [tutorial] https://www.kancloud.cn/aceld/zinx     %s", borderLine, borderLine))
 	fmt.Println(bottomLine)
 	fmt.Printf("[Zinx] Version: %s, MaxConn: %d, MaxPacketSize: %d\n",
 		utils.GlobalObject.Version,

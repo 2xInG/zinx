@@ -7,6 +7,7 @@ import (
 
 	"github.com/aceld/zinx/utils"
 	"github.com/aceld/zinx/ziface"
+	"fmt"
 )
 
 var defaultHeaderLen uint32 = 8
@@ -68,8 +69,16 @@ func (dp *DataPack) Unpack(binaryData []byte) (ziface.IMessage, error) {
 
 	//判断dataLen的长度是否超出我们允许的最大包长度
 	if utils.GlobalObject.MaxPacketSize > 0 && msg.DataLen > utils.GlobalObject.MaxPacketSize {
-		return nil, errors.New("too large msg data received")
+		return nil, errors.New(fmt.Sprint("too large msg data received DataLen==>>",msg.DataLen))
 	}
+	////读msgID
+	//if err := binary.Read(dataBuff, binary.BigEndian, &msg.Data); err != nil {
+	//	return nil, err
+	//}
+	//
+	//fmt.Println("Receive Data Length==>>",msg.DataLen)
+	//fmt.Println("Receive Data Encode==>>",msg.Data)
+	//fmt.Println("Receive Data Decode==>>",string(msg.Data))
 
 	//这里只需要把head的数据拆包出来就可以了，然后再通过head的长度，再从conn读取一次数据
 	return msg, nil
