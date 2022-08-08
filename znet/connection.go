@@ -8,8 +8,8 @@ import (
 	"net"
 	"sync"
 
-	"github.com/aceld/zinx/utils"
-	"github.com/aceld/zinx/ziface"
+	"github.com/wxyz520/zinx/utils"
+	"github.com/wxyz520/zinx/ziface"
 	"time"
 )
 
@@ -46,18 +46,17 @@ type Connection struct {
 func NewConnection(server ziface.IServer, conn *net.TCPConn, connID uint32, msgHandler ziface.IMsgHandle) *Connection {
 	//初始化Conn属性
 	deadTime := utils.GlobalObject.DeadTime
-	times := time.Now().Unix()+deadTime
+	times := time.Now().Unix() + deadTime
 	c := &Connection{
-		TCPServer:   server,
-		Conn:        conn,
-		ConnID:      connID,
-		isClosed:    false,
-		MsgHandler:  msgHandler,
-		msgChan:     make(chan []byte),
-		msgBuffChan: make(chan []byte, utils.GlobalObject.MaxMsgChanLen),
-		property:    nil,
-		deadTimeLine: &times ,
-
+		TCPServer:    server,
+		Conn:         conn,
+		ConnID:       connID,
+		isClosed:     false,
+		MsgHandler:   msgHandler,
+		msgChan:      make(chan []byte),
+		msgBuffChan:  make(chan []byte, utils.GlobalObject.MaxMsgChanLen),
+		property:     nil,
+		deadTimeLine: &times,
 	}
 
 	//将新创建的Conn添加到链接管理中
@@ -268,15 +267,17 @@ func (c *Connection) RemoveProperty(key string) {
 func (c *Connection) Context() context.Context {
 	return c.ctx
 }
+
 /*
-    Author 2xInG
-    Desc 源码更改 新增心跳短线
-    Time 2022年8月5日16:36:37
+   Author 2xInG
+   Desc 源码更改 新增心跳短线
+   Time 2022年8月5日16:36:37
 */
 //获取哏屁时间
 func (c *Connection) GetDeadTime() *int64 {
 	return c.deadTimeLine
 }
+
 //获取哏屁时间
 func (c *Connection) SetDeadTime(time int64) {
 	c.deadTimeLine = &time

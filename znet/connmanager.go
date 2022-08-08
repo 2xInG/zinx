@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/aceld/zinx/ziface"
+	"github.com/wxyz520/zinx/ziface"
 )
 
 //ConnManager 连接管理模块
@@ -77,13 +77,14 @@ func (connMgr *ConnManager) ClearConn() {
 	connMgr.connLock.Unlock()
 	fmt.Println("Clear All Connections successfully: conn num = ", connMgr.Len())
 }
+
 /*
    Author 2xInG
    Desc 源码更改 新增心跳短线
    Time 2022年8月5日18:51:08
 */
 //获取所有链接
-func (connMgr *ConnManager) GetAllConn()(map[uint32]ziface.IConnection) {
+func (connMgr *ConnManager) GetAllConn() map[uint32]ziface.IConnection {
 	//connMgr.connLock.Lock()
 	//connMgr.connLock.Unlock()
 	return connMgr.connections

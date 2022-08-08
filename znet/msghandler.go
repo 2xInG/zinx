@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aceld/zinx/utils"
-	"github.com/aceld/zinx/ziface"
+	"github.com/wxyz520/zinx/utils"
+	"github.com/wxyz520/zinx/ziface"
 )
 
 // MsgHandle -

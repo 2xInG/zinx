@@ -14,8 +14,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/aceld/zinx/ziface"
-	"github.com/aceld/zinx/zlog"
+	"github.com/wxyz520/zinx/ziface"
+	"github.com/wxyz520/zinx/zlog"
 )
 
 /*
@@ -126,7 +126,7 @@ func init() {
 		LogDir:           pwd + "/log",
 		LogFile:          "",
 		LogDebugClose:    false,
-		DeadTime:		5,
+		DeadTime:         5,
 	}
 
 	//NOTE: 从配置文件中加载一些用户配置的参数
