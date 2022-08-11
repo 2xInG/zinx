@@ -111,15 +111,17 @@ func (c *Connection) StartReader() {
 			//读取客户端的Msg head
 			headData := make([]byte, c.TCPServer.Packet().GetHeadLen())
 			if _, err := io.ReadFull(c.Conn, headData); err != nil {
+				c.Conn.RemoteAddr()
 				fmt.Println("read msg head error ", err)
 				return
 			}
 			//fmt.Printf("read headData %+v\n", headData)
-
+			//fmt.Printf("read headData STRING %+v\n", string(headData))
 			//拆包，得到msgID 和 datalen 放在msg中
 			msg, err := c.TCPServer.Packet().Unpack(headData)
 			if err != nil {
 				fmt.Println("unpack error ", err)
+				fmt.Println("unpack error data", msg)
 				return
 			}
 

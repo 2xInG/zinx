@@ -85,9 +85,12 @@ func (connMgr *ConnManager) ClearConn() {
 */
 //获取所有链接
 func (connMgr *ConnManager) GetAllConn() map[uint32]ziface.IConnection {
-	//connMgr.connLock.Lock()
-	//connMgr.connLock.Unlock()
+	//此处锁不可去
+	//否则会报 concurrent map iteration and map write
+	connMgr.connLock.Lock()
+	defer connMgr.connLock.Unlock()
 	return connMgr.connections
+
 }
 
 //ClearOneConn  利用ConnID获取一个链接 并且删除
