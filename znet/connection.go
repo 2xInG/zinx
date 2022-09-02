@@ -8,9 +8,10 @@ import (
 	"net"
 	"sync"
 
+	"time"
+
 	"github.com/wxyz520/zinx/utils"
 	"github.com/wxyz520/zinx/ziface"
-	"time"
 )
 
 //Connection 链接
@@ -26,8 +27,6 @@ type Connection struct {
 	//告知该链接已经退出/停止的channel
 	ctx    context.Context
 	cancel context.CancelFunc
-	//无缓冲管道，用于读、写两个goroutine之间的消息通信
-	msgChan chan []byte
 	//有缓冲管道，用于读、写两个goroutine之间的消息通信
 	msgBuffChan chan []byte
 
@@ -53,7 +52,6 @@ func NewConnection(server ziface.IServer, conn *net.TCPConn, connID uint32, msgH
 		ConnID:       connID,
 		isClosed:     false,
 		MsgHandler:   msgHandler,
-		msgChan:      make(chan []byte),
 		msgBuffChan:  make(chan []byte, utils.GlobalObject.MaxMsgChanLen),
 		property:     nil,
 		deadTimeLine: &times,
@@ -71,13 +69,6 @@ func (c *Connection) StartWriter() {
 
 	for {
 		select {
-		case data := <-c.msgChan:
-			//有数据要写给客户端
-			if _, err := c.Conn.Write(data); err != nil {
-				fmt.Println("Send Data error:, ", err, " Conn Writer exit")
-				return
-			}
-			//fmt.Printf("Send data succ! data = %+v\n", data)
 		case data, ok := <-c.msgBuffChan:
 			if ok {
 				//有数据要写给客户端
@@ -111,17 +102,15 @@ func (c *Connection) StartReader() {
 			//读取客户端的Msg head
 			headData := make([]byte, c.TCPServer.Packet().GetHeadLen())
 			if _, err := io.ReadFull(c.Conn, headData); err != nil {
-				c.Conn.RemoteAddr()
 				fmt.Println("read msg head error ", err)
 				return
 			}
 			//fmt.Printf("read headData %+v\n", headData)
-			//fmt.Printf("read headData STRING %+v\n", string(headData))
+
 			//拆包，得到msgID 和 datalen 放在msg中
 			msg, err := c.TCPServer.Packet().Unpack(headData)
 			if err != nil {
 				fmt.Println("unpack error ", err)
-				fmt.Println("unpack error data", msg)
 				return
 			}
 
@@ -207,15 +196,17 @@ func (c *Connection) SendMsg(msgID uint32, data []byte) error {
 	}
 
 	//写回客户端
-	c.msgChan <- msg
-
-	return nil
+	_, err = c.Conn.Write(msg)
+	return err
 }
 
 //SendBuffMsg  发生BuffMsg
 func (c *Connection) SendBuffMsg(msgID uint32, data []byte) error {
 	c.RLock()
 	defer c.RUnlock()
+	idleTimeout := time.NewTimer(5 * time.Millisecond)
+	defer idleTimeout.Stop()
+
 	if c.isClosed == true {
 		return errors.New("Connection closed when send buff msg")
 	}
@@ -228,8 +219,15 @@ func (c *Connection) SendBuffMsg(msgID uint32, data []byte) error {
 		return errors.New("Pack error msg ")
 	}
 
+	// 发送超时
+	select {
+	case <-idleTimeout.C:
+		return errors.New("send buff msg timeout")
+	case c.msgBuffChan <- msg:
+		return nil
+	}
 	//写回客户端
-	c.msgBuffChan <- msg
+	//c.msgBuffChan <- msg
 
 	return nil
 }
