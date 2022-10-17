@@ -133,7 +133,7 @@ func init() {
 		LogDir:           pwd + "/log",
 		LogFile:          "",
 		LogDebugClose:    false,
-		DeadTime:         5,
+		DeadTime:         60,
 	}
 
 	//NOTE: 从配置文件中加载一些用户配置的参数
