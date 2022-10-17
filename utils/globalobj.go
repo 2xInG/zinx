@@ -107,10 +107,17 @@ func (g *GlobalObj) Reload() {
 	提供init方法，默认加载
 */
 func init() {
+	//两次获取
 	pwd, err := os.Getwd()
 	if err != nil {
-		pwd = "."
+		pwdEx, errs := os.Executable()
+		if errs != nil {
+			pwd = "."
+		} else {
+			pwd = pwdEx
+		}
 	}
+
 	//初始化GlobalObject变量，设置一些默认值
 	GlobalObject = &GlobalObj{
 		Name:             "ZinxServerApp",
