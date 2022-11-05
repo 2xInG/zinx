@@ -39,4 +39,5 @@ type IConnection interface {
 	RemoveProperty(key string)                   //移除链接属性
 	GetDeadTime() *int64                         //获取哏屁时间
 	SetDeadTime(int64)                           //设置哏屁时间
+	IsClosed() bool                              //获取连接是否关闭
 }

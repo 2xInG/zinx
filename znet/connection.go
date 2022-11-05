@@ -282,6 +282,16 @@ func (c *Connection) GetDeadTime() *int64 {
 func (c *Connection) SetDeadTime(time int64) {
 	c.deadTimeLine = &time
 }
+
+/*
+   Author 2xInG
+   Desc 新增返回连接状态
+   Time 2022年11月5日15:56:39
+*/
+//获取连接状态
+func (c *Connection) IsClosed() bool {
+	return c.isClosed
+}
 func (c *Connection) finalizer() {
 	//如果用户注册了该链接的关闭回调业务，那么在此刻应该显示调用
 	c.TCPServer.CallOnConnStop(c)
